@@ -28,6 +28,16 @@ namespace QR.General
 
             return sum;
         }
+
+        public static string GetPatternValue(string[] pattern, int iterationElapsed, int groupSize = 1)
+        {
+            if (pattern.Length == 0)
+                return string.Empty;
+
+            int iterationGroup = iterationElapsed / groupSize;
+            int index = (iterationGroup % pattern.Length + pattern.Length) % pattern.Length;
+            return pattern[index];
+        }
     }
 
 }

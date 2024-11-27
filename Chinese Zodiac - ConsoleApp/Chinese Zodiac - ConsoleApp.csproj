@@ -10,6 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="ClosedXML" Version="0.104.1" />
+    <PackageReference Include="tyme4net" Version="1.1.5" />
   </ItemGroup>
 
 </Project>

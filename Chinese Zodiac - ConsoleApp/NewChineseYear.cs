@@ -1,25 +1,45 @@
-using System;
-using System.Globalization;
 using QR.General;
-public class ChineseAnimals()
+using tyme.festival;
+using tyme.solar;
+
+public class ChineseZodiacSing()
 {
     public static readonly string[] animals = ["Mono", "Gallo", "Perro", "Cerdo/Jabalí", "Rata", "Buey/Búfalo", "Tigre", "Conejo", "Dragón", "Serpiente", "Caballo", "Cabra/Oveja"];
-    public static readonly string[] elementPerYear = ["Metal", "Metal", "Agua", "Agua", "Madera", "Madera", "Fuego", "Fuego", "Tierra", "Tierra"];
+    public static readonly string[] element = ["Metal", "Agua", "Madera", "Fuego", "Tierra"];
+    public static readonly string[] polarity = ["Yang", "Yin"];
+    public class ZodiacSign
+    {
+        public string ZodiacAnimal { get; private set; }
+        public string ZodiacElement { get; private set; }
+        public string ZodiacPolarity { get; private set; }
 
-    public static string GetFromValue(int animalID)
-    {
-        return animals[animalID];
+        public ZodiacSign(string animal, string element, string polarity)
+        {
+            ZodiacAnimal = animal;
+            ZodiacElement = element;
+            ZodiacPolarity = polarity;
+
+        }
     }
-    public static string GetElement(int year)
+    public static string GetZodiacAnimal(int iteration)
     {
-        return elementPerYear[QRGeneral.SelectLastNDigits(year, 1)];
+        return QRGeneral.GetPatternValue(animals, iteration);
     }
-    public static (string, string) GetSign(int year)
+
+    public static string GetElement(int iteration)
     {
-        return (GetFromValue(year % 12), GetElement(year));
+        return QRGeneral.GetPatternValue(element, iteration, 2);
+    }
+
+    public static string GetPolarity(int iteration)
+    {
+        return QRGeneral.GetPatternValue(polarity, iteration);
+    }
+    public static ZodiacSign GetZodiacSign(int iteration)
+    {
+        return new ZodiacSign(GetZodiacAnimal(iteration), GetElement(iteration), GetPolarity(iteration));
     }
 }
-
 public class KuaNumberClass()
 {
     public static readonly (int male, int female) Century20 = (10, 5);
@@ -87,13 +107,13 @@ public class KuaNumberClass()
             return "Invalido";
     }
 }
-
 public class NewChineseYear
 {
-    public (int year, int month, int day) DateOfStart { get; private set; }
-    public (int year, int month, int day) DateOfEnd { get; private set; }
-    public (string animal, string element) Sign { get; private set; }
+    public DateTime StartDate { get; private set; }
+    public DateTime EndDate { get; private set; }
+    public ChineseZodiacSing.ZodiacSign zodiacSign { get; private set; }
     public ((int male, int female) number, (string male, string female) group) Kua { get; private set; }
+
     public NewChineseYear(int year)
     {
         if (year > 2100 || year <= 1900)
@@ -102,44 +122,12 @@ public class NewChineseYear
             year = 1901;
         }
 
-        DateOfStart = GetStartOfChineseNewYear(year);
-        DateOfEnd = GetEndOfChineseYear(year);
+        SolarDay startNewYearDate = LunarFestival.FromIndex(year, 0).Day.GetSolarDay();
+        SolarDay nextNewYearDate = LunarFestival.FromIndex(year + 1, 0).Day.GetSolarDay();
 
-        Sign = ChineseAnimals.GetSign(year);
+        StartDate = new DateTime(startNewYearDate.Year, startNewYearDate.Month, startNewYearDate.Day);
+        EndDate = new DateTime(nextNewYearDate.Year, nextNewYearDate.Month, nextNewYearDate.Day).AddDays(-1);
+        zodiacSign = ChineseZodiacSing.GetZodiacSign(year);
         Kua = KuaNumberClass.GetKua(year);
-    }
-
-    public static (int year, int month, int day) GetStartOfChineseNewYear(int yearAsked)
-    {
-        ChineseLunisolarCalendar chinese = new ChineseLunisolarCalendar();
-        GregorianCalendar gregorian = new GregorianCalendar();
-
-        // Obtener el Año Nuevo Chino para el año solicitado
-        DateTime chineseNewYear = chinese.ToDateTime(yearAsked, 1, 1, 0, 0, 0, 0);
-
-        // Convertir la fecha al calendario gregoriano
-        int year = gregorian.GetYear(chineseNewYear);
-        int month = gregorian.GetMonth(chineseNewYear);
-        int day = gregorian.GetDayOfMonth(chineseNewYear);
-
-        return (year, month, day);
-    }
-
-    public static (int year, int month, int day) GetEndOfChineseYear(int yearAsked)
-    {
-        ChineseLunisolarCalendar chinese = new ChineseLunisolarCalendar();
-        GregorianCalendar gregorian = new GregorianCalendar();
-
-        // Obtener el último mes y último día del año chino
-        int lastMonth = chinese.GetMonthsInYear(yearAsked);
-        int lastDay = chinese.GetDaysInMonth(yearAsked, lastMonth);
-
-        // Convertir la fecha del último día al calendario gregoriano
-        DateTime endOfYear = chinese.ToDateTime(yearAsked, lastMonth, lastDay, 0, 0, 0, 0);
-        int year = gregorian.GetYear(endOfYear);
-        int month = gregorian.GetMonth(endOfYear);
-        int day = gregorian.GetDayOfMonth(endOfYear);
-
-        return (year, month, day);
     }
 }
