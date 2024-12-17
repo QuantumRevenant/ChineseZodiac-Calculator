@@ -118,8 +118,8 @@ class TSMenu
         int yearIteration = date.Year % 12; // Iteración de años
 
         bool inMonth = date.Date >= QRTymeExtension.getSolarTermJie(date.Year, date.Month);
-        bool inYear = date.Date > QRTymeExtension.getNewYear(date.Year);
-
+        bool inYear = date.Date >= QRTymeExtension.getNewSolarYear(date.Year);
+        
         bool monthCollision = ChineseZodiacSign.CheckCollision(dayIteration, monthIteration);
         bool yearCollision = ChineseZodiacSign.CheckCollision(dayIteration, yearIteration);
 

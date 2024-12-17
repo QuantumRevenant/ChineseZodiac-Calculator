@@ -41,9 +41,9 @@ public class ChineseZodiacSign()
     }
     public static ZodiacSign GetZodiacMonth(int month, int year)
     {
-        int iteration = month + 12 * year-(baseDate.Month+12*baseDate.Year);
+        int iteration = month + 12 * year - (baseDate.Month + 12 * baseDate.Year);
         int animIT = iteration % 12;
-        int elemIT = iteration-2 % 10;
+        int elemIT = iteration - 2 % 10;
         return new ZodiacSign(GetZodiacAnimal(iteration), GetElement(iteration), GetPolarity(iteration));
     }
     public static ZodiacSign GetZodiacMonthDate(DateTime date)
@@ -206,7 +206,7 @@ public class QRTymeExtension
     }
     public static bool isNewYear(DateTime dateTime)
     {
-        return dateTime == getNewYear(dateTime.Year);
+        return dateTime == getNewLunarYear(dateTime.Year);
     }
     public static DateTime getSolarTerm(int year, int index)
     {
@@ -215,9 +215,13 @@ public class QRTymeExtension
     public static DateTime getSolarTermJie(int year, int index) { return getSolarTerm(year, index * 2 - 1); }
     public static DateTime getSolarTermQi(int year, int index) { return getSolarTerm(year, index * 2); }
 
-    public static DateTime getNewYear(int year)
+    public static DateTime getNewLunarYear(int year)
     {
         return SolarDayToDateTime(LunarFestival.FromIndex(year, 0).Day.GetSolarDay());
+    }
+    public static DateTime getNewSolarYear(int year)
+    {
+        return getSolarTermJie(year,2);
     }
 
     private static List<DateTime> GetYearSolarTerms(int year)
